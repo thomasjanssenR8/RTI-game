@@ -12,6 +12,8 @@ import platform
 from time import sleep
 import signal
 import json
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Game:
@@ -42,6 +44,12 @@ class Game:
         try:
             message = json.loads(msg.payload)
             logger.info(f'Message received: {message}')
+            matrix = message['tolist']
+
+
+            plt.imshow(matrix)
+            plt.colorbar()
+            plt.show()
         except Exception as e:
             logger.error(e)
 
