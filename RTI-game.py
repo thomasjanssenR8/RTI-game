@@ -12,7 +12,6 @@ import platform
 from time import sleep
 import signal
 import json
-import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -42,20 +41,39 @@ class Game:
 
     def msg_callback(self, client, config, msg):
         try:
+            # Parse message
             message = json.loads(msg.payload)
             logger.info(f'Message received: {message}')
             matrix = message['tolist']
 
-
-            plt.imshow(matrix)
+            # Show RTI image
+            fig = plt.figure()
+            im = plt.imshow(matrix, animated=True)
             plt.colorbar()
-            plt.show()
+            plt.show()  # TODO: live visualization
+
+            # Determine the max value in the matrix
+            max_val = 0
+            for i, row in enumerate(matrix):
+                for j, val in enumerate(row):
+                    if val > max_val:
+                        max_val = val
+                        max_coord = [i, j]
+            logger.debug(f'Max value of {max_val} found at {max_coord}')
+
+            # TODO Determine the key to be pressed
+
+
+            # TODO Press the key
+
+
         except Exception as e:
             logger.error(e)
 
 
 # Create global logger
 logger = logging.getLogger(__name__)
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
 formatstring = "%(asctime)s - %(name)s:%(funcName)s:%(lineno)i - %(levelname)s - %(message)s"
 logging.basicConfig(format=formatstring, level=logging.DEBUG)
 
