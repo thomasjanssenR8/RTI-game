@@ -48,7 +48,7 @@ class Game:
 
             # Show RTI image
             fig = plt.figure()
-            im = plt.imshow(matrix, animated=True)
+            im = plt.imshow(matrix)
             plt.colorbar()
             plt.show()  # TODO: live visualization
 
@@ -61,7 +61,18 @@ class Game:
                         max_coord = [i, j]
             logger.debug(f'Max value of {max_val} found at {max_coord}')
 
-            # TODO Determine the key to be pressed
+            # Determine the key to be pressed
+            if max_coord[0] < 34:
+                if max_coord[1] < 33:   # Upper left corner = LEFT
+                    key = 'LEFT'
+                else:                   # Upper right corner = UP
+                    key = 'UP'
+            else:
+                if max_coord[1] < 33:   # Lower left corner = DOWN
+                    key = 'DOWN'
+                else:                   # Lower right corner = RIGHT
+                    key = 'RIGHT'
+            logger.info(f'Key to be pressed: {key}')
 
 
             # TODO Press the key
