@@ -4,6 +4,12 @@ Author: Thomas Janssen
 Project: RTI-game
 
 STEM Zomerkamp project: Handle inputs from an RTI environment to control a web-based game.
+
+Games controllable with 4 keys (up, down, left, right):
+- Boulder dash: https://boulder-dash.com/boulder-dash-online-game/
+- Pacman: https://www.webretrogames.com/pacman-html5.php
+- 2048: https://play2048.co/
+- Snake: https://snake.googlemaps.com/
 """
 
 from Mqtt import Mqtt
@@ -23,7 +29,7 @@ class Game:
         mosquitto_sub -h localhost -t "data"
         mosquitto_pub -h localhost -t "data" -m "hello world"
         """
-        self.mqtt_client = Mqtt(broker='localhost', port=1883, user=None, password=None, subscription_topics=['data'],
+        self.mqtt_client = Mqtt(broker='localhost', port=1883, user=None, password=None, subscription_topics=['/stem20/heatmap/'],
                                 mqtt_callback=self.msg_callback)
 
     def run(self):
@@ -61,22 +67,22 @@ class Game:
                         max_coord = [i, j]
             logger.debug(f'Max value of {max_val} found at {max_coord}')
 
-            # Determine the key to be pressed
-            if max_coord[0] < 34:
-                if max_coord[1] < 33:   # Upper left corner = LEFT
-                    key = 'LEFT'
-                else:                   # Upper right corner = UP
-                    key = 'UP'
-            else:
-                if max_coord[1] < 33:   # Lower left corner = DOWN
-                    key = 'DOWN'
-                else:                   # Lower right corner = RIGHT
-                    key = 'RIGHT'
-            logger.info(f'Key to be pressed: {key}')
+            if max_val > 0.5:   # Filter noisy signals using a threshold value
 
+                # Determine the key to be pressed
+                if max_coord[0] < 34:
+                    if max_coord[1] < 33:   # Upper left corner = LEFT
+                        key = 'LEFT'
+                    else:                   # Upper right corner = UP
+                        key = 'UP'
+                else:
+                    if max_coord[1] < 33:   # Lower left corner = DOWN
+                        key = 'DOWN'
+                    else:                   # Lower right corner = RIGHT
+                        key = 'RIGHT'
+                logger.info(f'Key to be pressed: {key}')
 
-            # TODO Press the key
-
+                # TODO Press the key
 
         except Exception as e:
             logger.error(e)
