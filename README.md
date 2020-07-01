@@ -12,3 +12,5 @@ We can visualize the movement of human bodies by plotting the values (between 0 
 
 ## Control keys
 Using the PyAutoGUI package, we can simulate the clicking with a mouse or pressing keys on the keyboard.
+
+In this project, we divide the RTI environment in 4 sections, each representing a key (up, down, left, right). The max value in the matrix determines what key should be pressed. Thus, by running the [RTI-game.py](RTI-game.py) script, live RTI messages enter the script and simulate the pressing of the arrow keys.
