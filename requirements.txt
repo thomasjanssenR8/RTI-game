@@ -1,0 +1,10 @@
+paho-mqtt
+logging
+platform
+time
+signal
+json
+matplotlib
+pyautogui
+typing
+ssl
