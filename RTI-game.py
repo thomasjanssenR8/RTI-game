@@ -19,6 +19,7 @@ from time import sleep
 import signal
 import json
 import matplotlib.pyplot as plt
+import pyautogui
 
 
 class Game:
@@ -52,11 +53,11 @@ class Game:
             logger.info(f'Message received: {message}')
             matrix = message['tolist']
 
-            # Show RTI image
+            # Show RTI image (visualization is done live in RTI system)
             fig = plt.figure()
             im = plt.imshow(matrix)
             plt.colorbar()
-            plt.show()  # TODO: live visualization
+            plt.show()
 
             # Determine the max value in the matrix
             max_val = 0
@@ -72,17 +73,19 @@ class Game:
                 # Determine the key to be pressed
                 if max_coord[0] < 34:
                     if max_coord[1] < 33:   # Upper left corner = LEFT
-                        key = 'LEFT'
+                        key = 'left'
                     else:                   # Upper right corner = UP
-                        key = 'UP'
+                        key = 'up'
                 else:
                     if max_coord[1] < 33:   # Lower left corner = DOWN
-                        key = 'DOWN'
+                        key = 'down'
                     else:                   # Lower right corner = RIGHT
-                        key = 'RIGHT'
-                logger.info(f'Key to be pressed: {key}')
+                        key = 'right'
+                logger.info(f'Pressing key: {key}')
 
-                # TODO Press the key
+                # Press the key
+                sleep(2)
+                pyautogui.press(key)  # interval = 1s, or use keyDown() and keyUp()
 
         except Exception as e:
             logger.error(e)
