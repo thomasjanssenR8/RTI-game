@@ -52,11 +52,11 @@ class Game:
             global start
             now = time()
             time_diff = now - start
-            if time_diff > 5:  # TODO CHANGE
+            if time_diff > 2:  # TODO CHANGE
 
                 # Parse message
                 message = json.loads(msg.payload)
-                logger.info(f'Message received: {message}')
+                logger.debug(f'Message received: {message}')
                 matrix = message['tolist']
 
                 # # Show RTI image (visualization is done live in RTI system)
@@ -82,17 +82,19 @@ class Game:
                         if max_coord[1] < 33:   # Upper left corner = LEFT
                             key = 'left'
                         else:                   # Upper right corner = UP
-                            key = 'up'
+                            key = 'down'
                     else:
                         if max_coord[1] < 33:   # Lower left corner = DOWN
-                            key = 'down'
+                            key = 'up'
                         else:                   # Lower right corner = RIGHT
                             key = 'right'
                     logger.info(f'Pressing key: {key}')
 
                     # Press the key
                     pyautogui.press(key)  # interval = 1s, or use keyDown() and keyUp()
-                    start = now
+
+               # Reset the timer
+                start = now
 
             else:
                 logger.debug(f'Message discarded (time diff = {time_diff})')
@@ -106,7 +108,7 @@ class Game:
 logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 formatstring = "%(asctime)s - %(name)s:%(funcName)s:%(lineno)i - %(levelname)s - %(message)s"
-logging.basicConfig(format=formatstring, level=logging.DEBUG)
+logging.basicConfig(format=formatstring, level=logging.INFO)
 
 # Start the game
 start = time()
