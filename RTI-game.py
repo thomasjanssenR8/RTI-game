@@ -30,7 +30,7 @@ class Game:
         mosquitto_sub -h localhost -t "data"
         mosquitto_pub -h localhost -t "data" -m "hello world"
         """
-        self.mqtt_client = Mqtt(broker='localhost', port=1883, user=None, password=None, subscription_topics=['/stem20/heatmap/'],
+        self.mqtt_client = Mqtt(broker='192.168.1.100', port=1883, user=None, password=None, subscription_topics=['/stem20/heatmap/'],
                                 mqtt_callback=self.msg_callback)  # TODO CHANGE
 
     def run(self):
@@ -52,21 +52,22 @@ class Game:
             global start
             now = time()
             time_diff = now - start
-            if time_diff > 0.5:  # TODO CHANGE
+            if time_diff > 5:  # TODO CHANGE
 
                 # Parse message
                 message = json.loads(msg.payload)
                 logger.info(f'Message received: {message}')
                 matrix = message['tolist']
 
-                # Show RTI image (visualization is done live in RTI system)
-                fig = plt.figure()
-                im = plt.imshow(matrix)
-                plt.colorbar()
-                plt.show()
+                # # Show RTI image (visualization is done live in RTI system)
+                # fig = plt.figure()
+                # im = plt.imshow(matrix)
+                # plt.colorbar()
+                # plt.show()
 
                 # Determine the max value in the matrix
                 max_val = 0
+                max_coord = None
                 for i, row in enumerate(matrix):
                     for j, val in enumerate(row):
                         if val > max_val:
@@ -91,10 +92,11 @@ class Game:
 
                     # Press the key
                     pyautogui.press(key)  # interval = 1s, or use keyDown() and keyUp()
+                    start = now
 
             else:
-                logger.debug(f'Message discarded (time diff = {time_diff}')
-            start = now
+                logger.debug(f'Message discarded (time diff = {time_diff})')
+
 
         except Exception as e:
             logger.error(e)
