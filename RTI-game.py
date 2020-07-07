@@ -15,7 +15,7 @@ Games controllable with 4 keys (up, down, left, right):
 from Mqtt import Mqtt
 import logging
 import platform
-from time import sleep
+from time import sleep, time
 import signal
 import json
 import matplotlib.pyplot as plt
@@ -31,7 +31,7 @@ class Game:
         mosquitto_pub -h localhost -t "data" -m "hello world"
         """
         self.mqtt_client = Mqtt(broker='localhost', port=1883, user=None, password=None, subscription_topics=['/stem20/heatmap/'],
-                                mqtt_callback=self.msg_callback)
+                                mqtt_callback=self.msg_callback)  # TODO CHANGE
 
     def run(self):
         keep_running = True
@@ -48,44 +48,54 @@ class Game:
 
     def msg_callback(self, client, config, msg):
         try:
-            # Parse message
-            message = json.loads(msg.payload)
-            logger.info(f'Message received: {message}')
-            matrix = message['tolist']
+            # Process messages only after a certain amount of time (otherwise: discard them)
+            global start
+            now = time()
+            time_diff = now - start
+            if time_diff > 0.5:  # TODO CHANGE
 
-            # Show RTI image (visualization is done live in RTI system)
-            fig = plt.figure()
-            im = plt.imshow(matrix)
-            plt.colorbar()
-            plt.show()
+                # Parse message
+                message = json.loads(msg.payload)
+                logger.info(f'Message received: {message}')
+                matrix = message['tolist']
 
-            # Determine the max value in the matrix
-            max_val = 0
-            for i, row in enumerate(matrix):
-                for j, val in enumerate(row):
-                    if val > max_val:
-                        max_val = val
-                        max_coord = [i, j]
-            logger.debug(f'Max value of {max_val} found at {max_coord}')
+                # Show RTI image (visualization is done live in RTI system)
+                fig = plt.figure()
+                im = plt.imshow(matrix)
+                plt.colorbar()
+                plt.show()
 
-            if max_val > 0.5:   # Filter noisy signals using a threshold value
+                # Determine the max value in the matrix
+                max_val = 0
+                for i, row in enumerate(matrix):
+                    for j, val in enumerate(row):
+                        if val > max_val:
+                            max_val = val
+                            max_coord = [i, j]
+                logger.debug(f'Max value of {max_val} found at {max_coord}')
 
-                # Determine the key to be pressed
-                if max_coord[0] < 34:
-                    if max_coord[1] < 33:   # Upper left corner = LEFT
-                        key = 'left'
-                    else:                   # Upper right corner = UP
-                        key = 'up'
-                else:
-                    if max_coord[1] < 33:   # Lower left corner = DOWN
-                        key = 'down'
-                    else:                   # Lower right corner = RIGHT
-                        key = 'right'
-                logger.info(f'Pressing key: {key}')
+                if max_val > 0.5:   # Filter noisy signals using a threshold value
 
-                # Press the key
-                sleep(2)
-                pyautogui.press(key)  # interval = 1s, or use keyDown() and keyUp()
+                    # Determine the key to be pressed
+                    if max_coord[0] < 34:
+                        if max_coord[1] < 33:   # Upper left corner = LEFT
+                            key = 'left'
+                        else:                   # Upper right corner = UP
+                            key = 'up'
+                    else:
+                        if max_coord[1] < 33:   # Lower left corner = DOWN
+                            key = 'down'
+                        else:                   # Lower right corner = RIGHT
+                            key = 'right'
+                    logger.info(f'Pressing key: {key}')
+
+                    # Press the key
+                    sleep(2)
+                    pyautogui.press(key)  # interval = 1s, or use keyDown() and keyUp()
+
+            else:
+                logger.debug(f'Message discarded (time diff = {time_diff}')
+            start = now
 
         except Exception as e:
             logger.error(e)
@@ -98,5 +108,6 @@ formatstring = "%(asctime)s - %(name)s:%(funcName)s:%(lineno)i - %(levelname)s -
 logging.basicConfig(format=formatstring, level=logging.DEBUG)
 
 # Start the game
+start = time()
 Game().run()
 
