@@ -90,7 +90,6 @@ class Game:
                     logger.info(f'Pressing key: {key}')
 
                     # Press the key
-                    sleep(2)
                     pyautogui.press(key)  # interval = 1s, or use keyDown() and keyUp()
 
             else:
